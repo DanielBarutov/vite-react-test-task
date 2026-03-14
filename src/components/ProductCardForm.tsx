@@ -41,10 +41,7 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox"
 
-interface Unit {
-  value: number
-  label: string
-}
+
 const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"]
 
 export function ExampleCombobox() {
