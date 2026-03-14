@@ -39,8 +39,6 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
-  ComboboxTrigger,
-  ComboboxValue,
 } from "@/components/ui/combobox"
 
 interface Unit {
@@ -66,17 +64,6 @@ export function ExampleCombobox() {
     </Combobox>
   )
 }
-const units: Unit[] = [
-
-  { value: 116, label: "Штука" },
-  { value: 117, label: "Килограмм" },
-  { value: 118, label: "Литр" },
-  { value: 119, label: "Метр" },
-  { value: 120, label: "Квадратный метр" },
-  { value: 121, label: "Кубический метр" },
-  { value: 122, label: "Пара" },
-  { value: 123, label: "Упаковка" },
-]
 
 const defaultPayload: NomenclatureCreatePayload = {
   name: "",
