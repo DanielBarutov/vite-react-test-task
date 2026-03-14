@@ -14,7 +14,7 @@ function App() {
       </header>
       <main className="container py-8 px-4">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-2xl font-bold ">
             Создание карточки товара
           </h1>
           <p className="text-muted-foreground mt-1">

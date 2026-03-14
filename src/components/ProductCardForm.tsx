@@ -32,6 +32,51 @@ import {
   CASHBACK_TYPES,
 } from "@/src/types/nomenclature"
 import { createNomenclature } from "@/src/api/nomenclature"
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxTrigger,
+  ComboboxValue,
+} from "@/components/ui/combobox"
+
+interface Unit {
+  value: number
+  label: string
+}
+const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"]
+
+export function ExampleCombobox() {
+  return (
+    <Combobox items={frameworks}>
+      <ComboboxInput placeholder="Select a framework" />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(item) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}
+const units: Unit[] = [
+
+  { value: 116, label: "Штука" },
+  { value: 117, label: "Килограмм" },
+  { value: 118, label: "Литр" },
+  { value: 119, label: "Метр" },
+  { value: 120, label: "Квадратный метр" },
+  { value: 121, label: "Кубический метр" },
+  { value: 122, label: "Пара" },
+  { value: 123, label: "Упаковка" },
+]
 
 const defaultPayload: NomenclatureCreatePayload = {
   name: "",
@@ -59,6 +104,8 @@ export function ProductCardForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+
+  
 
   const update = <K extends keyof NomenclatureCreatePayload>(
     key: K,
@@ -154,17 +201,7 @@ export function ProductCardForm() {
                   />
                 </Field>
                 <div className="grid grid-cols-2 gap-4">
-                  <Field>
-                    <FieldLabel htmlFor="unit">ID единицы измерения</FieldLabel>
-                    <Input
-                      id="unit"
-                      type="number"
-                      value={data.unit}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        update("unit", Number(e.target.value) || 0)
-                      }
-                    />
-                  </Field>
+                  
                   <Field>
                     <FieldLabel htmlFor="category">ID категории</FieldLabel>
                     <Input
@@ -175,6 +212,24 @@ export function ProductCardForm() {
                         update("category", Number(e.target.value) || 0)
                       }
                     />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor="unit">Единица измерения</FieldLabel>
+                    
+                    <Combobox  items={frameworks}>
+                    <ComboboxInput placeholder="Select a framework" />
+                    <ComboboxContent>
+                      <ComboboxEmpty>No items found.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(item) => (
+                          <ComboboxItem key={item} value={item}>
+                            {item}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
+                    
                   </Field>
                 </div>
                 <Field>
