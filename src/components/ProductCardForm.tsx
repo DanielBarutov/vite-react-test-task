@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -40,27 +40,11 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox"
-
-
-const frameworks = ["Next.js", "SvelteKit", "Nuxt.js", "Remix", "Astro"]
-
-export function ExampleCombobox() {
-  return (
-    <Combobox items={frameworks}>
-      <ComboboxInput placeholder="Select a framework" />
-      <ComboboxContent>
-        <ComboboxEmpty>No items found.</ComboboxEmpty>
-        <ComboboxList>
-          {(item) => (
-            <ComboboxItem key={item} value={item}>
-              {item}
-            </ComboboxItem>
-          )}
-        </ComboboxList>
-      </ComboboxContent>
-    </Combobox>
-  )
-}
+import { getUnits } from "../api/getUnit"
+import { type Unit } from "../types/unit"
+import { getCategories } from "../api/getCategory"
+import { Category } from "../types/category"
+import { generateSeoWithGemini } from "../api/generateSEO"
 
 const defaultPayload: NomenclatureCreatePayload = {
   name: "",
@@ -88,8 +72,8 @@ export function ProductCardForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-
-  
+  const [units, setUnits] = useState<Unit[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
 
   const update = <K extends keyof NomenclatureCreatePayload>(
     key: K,
@@ -98,7 +82,46 @@ export function ProductCardForm() {
     setData((prev: NomenclatureCreatePayload) => ({ ...prev, [key]: value }))
     setError(null)
   }
+  useEffect(() => {
+    const fetchUnits = async () => {
+      try {
+        const units = await getUnits()
+        setUnits(units)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Ошибка загрузки единиц измерения")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchUnits()
+    const fetchCategories = async () => {
+      try {
+        const categories = await getCategories()
+        setCategories(categories)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Ошибка загрузки категорий")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCategories()
+  }, [loading])
 
+  const handleGenerateSEO = async () => {
+    const params = {
+      productName: data.name,
+      descriptionShort: data.description_short,
+      descriptionLong: data.description_long,
+    }
+    try {
+      const response = await generateSeoWithGemini(params)
+      update("seo_title", response.seo_title)
+      update("seo_description", response.seo_description)
+      setSeoKeywordsStr(response.seo_keywords.join(", "))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Ошибка генерации SEO")
+    }
+  }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -187,27 +210,48 @@ export function ProductCardForm() {
                 <div className="grid grid-cols-2 gap-4">
                   
                   <Field>
-                    <FieldLabel htmlFor="category">ID категории</FieldLabel>
-                    <Input
-                      id="category"
-                      type="number"
-                      value={data.category}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        update("category", Number(e.target.value) || 0)
-                      }
-                    />
+                    <FieldLabel htmlFor="category">Категории</FieldLabel>
+                    <Combobox
+                    id="category"
+                    items={categories} 
+                    itemToStringValue={(category: Category) => category.name}
+                    itemToStringLabel={(category: Category) => category.name}
+                    value={categories.find((c) => c.id === data.category) ?? null}
+                    onValueChange={(value: Category | null) =>
+                      value != null && update("category", value.id || 0)
+                    }>
+                    <ComboboxInput placeholder="Выберите категорию" />
+                    <ComboboxContent>
+                      <ComboboxEmpty>Категории не найдены.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(category: Category) => (
+                          <ComboboxItem key={category.id} value={category}>
+                            {category.name}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                   </Field>
                   <Field>
                     <FieldLabel htmlFor="unit">Единица измерения</FieldLabel>
                     
-                    <Combobox  items={frameworks}>
-                    <ComboboxInput placeholder="Select a framework" />
+                    <Combobox
+                    id="unit"
+                    items={units} 
+                    itemToStringValue={(unit: Unit) => unit.name}
+                    itemToStringLabel={(unit: Unit) => unit.name}
+                    value={units.find((u) => u.id === data.unit) ?? null}
+                    onValueChange={(value: Unit | null) =>
+                      value != null && update("unit", value.id || 0)
+                    }>
+                    <ComboboxInput placeholder="Выберите единицу измерения" />
                     <ComboboxContent>
-                      <ComboboxEmpty>No items found.</ComboboxEmpty>
+                      <ComboboxEmpty>Единицы измерения не найдены.</ComboboxEmpty>
                       <ComboboxList>
-                        {(item) => (
-                          <ComboboxItem key={item} value={item}>
-                            {item}
+                        {(unit: Unit) => (
+                          <ComboboxItem key={unit.id} value={unit}>
+                            {unit.name}
                           </ComboboxItem>
                         )}
                       </ComboboxList>
@@ -218,19 +262,29 @@ export function ProductCardForm() {
                 </div>
                 <Field>
                   <FieldLabel htmlFor="global_category_id">
-                    ID глобальной категории
+                    Глобальная категория
                   </FieldLabel>
-                  <Input
+                  <Combobox
                     id="global_category_id"
-                    type="number"
-                    value={data.global_category_id}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      update(
-                        "global_category_id",
-                        Number(e.target.value) || 0
-                      )
-                    }
-                  />
+                    items={categories} 
+                    itemToStringValue={(category: Category) => category.name}
+                    itemToStringLabel={(category: Category) => category.name}
+                    value={categories.find((c) => c.id === data.global_category_id) ?? null}
+                    onValueChange={(value: Category | null) =>
+                      value != null && update("global_category_id", value.id || 0)
+                    }>
+                    <ComboboxInput placeholder="Выберите глобальную категорию" />
+                    <ComboboxContent>
+                      <ComboboxEmpty>Категории не найдены.</ComboboxEmpty>
+                      <ComboboxList>
+                        {(category: Category) => (
+                          <ComboboxItem key={category.id} value={category}>
+                            {category.name}
+                          </ComboboxItem>
+                        )}
+                      </ComboboxList>
+                    </ComboboxContent>
+                  </Combobox>
                 </Field>
               </FieldGroup>
             </CardContent>
@@ -284,9 +338,12 @@ export function ProductCardForm() {
           <Card>
             <CardHeader>
               <CardTitle>SEO</CardTitle>
+              <div className="flex items-center gap-2 justify-between">
               <CardDescription>
                 Мета-поля для поисковых систем и карточек в выдаче.
               </CardDescription>
+              <Button variant="outline" size="icon" className="w-fit p-4" onClick={handleGenerateSEO}>Сгенерировать</Button>
+              </div>
             </CardHeader>
             <CardContent>
               <FieldGroup>
@@ -385,7 +442,7 @@ export function ProductCardForm() {
                 <Field>
                   <FieldLabel>Тип кэшбэка</FieldLabel>
                   <Select
-                    value={data.cashback_type === "lcard_cashback" ? "Лента кэшбэк" : "Без кэшбэка"}
+                    value={CASHBACK_TYPES.find((c) => c.value === data.cashback_type)?.label ?? ""}
                     onValueChange={(v: string | null) =>
                       v != null && update("cashback_type", v)
                     }

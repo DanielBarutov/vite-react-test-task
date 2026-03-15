@@ -20,6 +20,8 @@ export interface NomenclatureCreatePayload {
 }
 
 export const CASHBACK_TYPES = [
-  { value: "lcard_cashback", label: "Лента Кэшбэк" },
-  { value: "none", label: "Без кэшбэка" },
+  { value: "lcard_cashback", label: "По карте лояльности" },
+  { value: "no_cashback", label: "Без кэшбэка" },
+  { value: "percent", label: "Проценты" },
+  { value: "const", label: "Постоянный" },
 ] as const
