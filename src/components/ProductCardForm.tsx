@@ -81,7 +81,6 @@ export function ProductCardForm() {
     value: NomenclatureCreatePayload[K]
   ) => {
     setData((prev: NomenclatureCreatePayload) => ({ ...prev, [key]: value }))
-    console.log("updated", key, value)
     setError(null)
   }
   useEffect(() => {
@@ -120,9 +119,9 @@ export function ProductCardForm() {
       const response = await generateSeoWithGemini(params)
       update("description_short", response.description_short)
       update("description_long", response.description_long)
-      update("category", response.category_id)
-      update("unit", response.unit_id)
-      update("global_category_id", response.global_category_id)
+      update("category", Number(response.category_id))
+      update("unit", Number(response.unit_id))
+      update("global_category_id", Number(response.global_category_id))
       update("seo_title", response.seo_title)
       update("seo_description", response.seo_description)
       setSeoKeywordsStr(response.seo_keywords.join(", "))
