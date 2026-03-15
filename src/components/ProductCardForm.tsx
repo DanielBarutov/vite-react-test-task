@@ -53,13 +53,13 @@ const defaultPayload: NomenclatureCreatePayload = {
   description_short: "",
   description_long: "",
   code: "",
-  unit: 116,
-  category: 2477,
+  unit: 0,
+  category: 0,
   cashback_type: "lcard_cashback",
   seo_title: "",
   seo_description: "",
   seo_keywords: [],
-  global_category_id: 127,
+  global_category_id: 0,
   marketplace_price: 0,
   chatting_percent: 0,
   address: "",
@@ -81,6 +81,7 @@ export function ProductCardForm() {
     value: NomenclatureCreatePayload[K]
   ) => {
     setData((prev: NomenclatureCreatePayload) => ({ ...prev, [key]: value }))
+    console.log("updated", key, value)
     setError(null)
   }
   useEffect(() => {

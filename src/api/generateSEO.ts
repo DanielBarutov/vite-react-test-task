@@ -36,7 +36,7 @@ export async function generateSeoWithGemini(params: {
     Верни СТРОГО JSON c заполненными полями: {"description_short": "...", "description_long": "...", "category_id": "...", "unit_id": "...", "global_category_id": "...", "seo_title": "...", "seo_description": "...", "seo_keywords": ["...", "..."]}`
   
     
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite-preview:generateContent`
   
     const res = await fetch(url, {
       method: "POST",
