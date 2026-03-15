@@ -45,6 +45,7 @@ import { type Unit } from "../types/unit"
 import { getCategories } from "../api/getCategory"
 import { Category } from "../types/category"
 import { generateSeoWithGemini } from "../api/generateSEO"
+import { useMediaQuery } from "@base-ui/react/unstable-use-media-query"
 
 const defaultPayload: NomenclatureCreatePayload = {
   name: "",
@@ -109,12 +110,18 @@ export function ProductCardForm() {
 
   const handleGenerateSEO = async () => {
     const params = {
-      productName: data.name,
-      descriptionShort: data.description_short,
-      descriptionLong: data.description_long,
+        productName: data.name,
+        categories: categories,
+        units: units,
+        globalCategories: categories,
     }
     try {
       const response = await generateSeoWithGemini(params)
+      update("description_short", response.description_short)
+      update("description_long", response.description_long)
+      update("category", response.category_id)
+      update("unit", response.unit_id)
+      update("global_category_id", response.global_category_id)
       update("seo_title", response.seo_title)
       update("seo_description", response.seo_description)
       setSeoKeywordsStr(response.seo_keywords.join(", "))
@@ -148,8 +155,9 @@ export function ProductCardForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-3xl">
-      <Tabs defaultValue="main" className="w-full">
-        <TabsList className="grid w-full grid-cols-5 mb-6">
+      <Tabs defaultValue="main" className="w-full" >
+       
+        <TabsList className="w-full flex flex-wrap gap-2 justify-center items-center h-auto">
           <TabsTrigger value="main" className="gap-1.5">
             <Package className="size-4" />
             Основное
@@ -171,14 +179,18 @@ export function ProductCardForm() {
             Адрес
           </TabsTrigger>
         </TabsList>
-
+       
         <TabsContent value="main">
           <Card>
             <CardHeader>
+              
               <CardTitle>Основные данные</CardTitle>
+              <div className="flex items-center gap-2 justify-between">
               <CardDescription>
                 Название, код и категория товара для маркетплейса.
               </CardDescription>
+              <Button variant="outline" size="icon" className="w-fit p-4" onClick={handleGenerateSEO}>Сгенерировать по названию</Button>
+              </div>
             </CardHeader>
             <CardContent>
               <FieldGroup>
@@ -338,12 +350,9 @@ export function ProductCardForm() {
           <Card>
             <CardHeader>
               <CardTitle>SEO</CardTitle>
-              <div className="flex items-center gap-2 justify-between">
               <CardDescription>
                 Мета-поля для поисковых систем и карточек в выдаче.
               </CardDescription>
-              <Button variant="outline" size="icon" className="w-fit p-4" onClick={handleGenerateSEO}>Сгенерировать</Button>
-              </div>
             </CardHeader>
             <CardContent>
               <FieldGroup>
