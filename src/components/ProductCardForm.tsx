@@ -45,7 +45,7 @@ import { type Unit } from "../types/unit"
 import { getCategories } from "../api/getCategory"
 import { Category } from "../types/category"
 import { generateSeoWithGemini } from "../api/generateSEO"
-import { useMediaQuery } from "@base-ui/react/unstable-use-media-query"
+
 
 const defaultPayload: NomenclatureCreatePayload = {
   name: "",
