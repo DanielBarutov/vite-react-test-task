@@ -77,7 +77,7 @@ This project is a high-performance product creation dashboard developed as a tec
 1. Клонировать репозиторий:
 
    ```bash
-   git clone [https://github.com/DanielBarutov/vite-react-test-task.git](https://github.com/DanielBarutov/vite-react-test-task.git)
+   git clone https://github.com/DanielBarutov/vite-react-test-task.git
    ```
 
 2. Установить зависимости:
